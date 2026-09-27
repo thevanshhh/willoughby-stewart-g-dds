@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Selection Preview - Willoughby Stewart G DDS</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 24px 24px 100px 24px;
+        }
+        .header {
+            max-width: 1300px;
+            margin: 0 auto 30px auto;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 28px;
+            margin: 0 0 8px 0;
+            color: #38bdf8;
+        }
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 15px;
+            margin: 0 0 12px 0;
+        }
+        .info-badge {
+            display: inline-block;
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 13px;
+            color: #cbd5e1;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .instructions-box {
+            background: #1e293b;
+            border: 1px solid #0284c7;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 14px;
+            font-size: 14px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #38bdf8;
+        }
+        .card.selected {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.4), 0 12px 24px rgba(0, 0, 0, 0.4) !important;
+            transform: translateY(-4px);
+        }
+        .badge {
+            background: #0f172a;
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+            transition: background 0.2s ease;
+        }
+        .card.selected .badge {
+            background: #0284c7;
+        }
+        .select-tag {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #334155;
+            color: #94a3b8;
+            transition: all 0.2s ease;
+        }
+        .card.selected .select-tag {
+            background: #ffffff;
+            color: #0284c7;
+            font-weight: 700;
+        }
+        .img-container {
+            width: 100%;
+            height: 240px;
+            background: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        /* Sticky Floating Bar */
+        .floating-bar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            border: 2px solid #38bdf8;
+            border-radius: 9999px;
+            padding: 10px 24px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.25);
+            display: none;
+            align-items: center;
+            gap: 16px;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+            animation: slideUp 0.25s ease-out;
+            max-width: 90vw;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .bar-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #f8fafc;
+            white-space: nowrap;
+        }
+        .bar-count {
+            background: #0284c7;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .bar-list {
+            color: #94a3b8;
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+        .copy-btn {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 9999px;
+            padding: 8px 18px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .copy-btn:hover {
+            background: #7dd3fc;
+            transform: scale(1.02);
+        }
+        .clear-btn {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            border-radius: 9999px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .clear-btn:hover {
+            background: #1e293b;
+            color: #f8fafc;
+            border-color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Willoughby Stewart G DDS</h1>
+        <p class="subtitle">Click on the photos you want to select for your website, then click "Copy Selected Numbers" in the bar below to paste directly into chat.</p>
+        <div>
+            <span class="info-badge">📍  8301 S Brandon Ave, Chicago, IL 60617, United States</span>
+            <span class="info-badge">📞  +1 773-375-6199</span>
+            <span class="info-badge">📷 4 Total Photos Scraped</span>
+        </div>
+        <div class="instructions-box">
+            💡 <strong>How to use:</strong> Click any photo card to select/unselect it. When finished, use the floating button at the bottom to copy the numbers with 1 click.
+        </div>
+    </div>
+    <div class="grid">
+        <div class="card" id="card-1" onclick="togglePhoto(1)">
+            <div class="badge">
+                <span>PHOTO #1</span>
+                <span class="select-tag" id="tag-1">Select ◯</span>
+            </div>
+            <div class="img-container">
+                <img src="all_photos/photo_1.jpg" alt="Photo #1" loading="lazy">
+            </div>
+        </div>
+        <div class="card" id="card-2" onclick="togglePhoto(2)">
+            <div class="badge">
+                <span>PHOTO #2</span>
+                <span class="select-tag" id="tag-2">Select ◯</span>
+            </div>
+            <div class="img-container">
+                <img src="all_photos/photo_2.jpg" alt="Photo #2" loading="lazy">
+            </div>
+        </div>
+        <div class="card" id="card-3" onclick="togglePhoto(3)">
+            <div class="badge">
+                <span>PHOTO #3</span>
+                <span class="select-tag" id="tag-3">Select ◯</span>
+            </div>
+            <div class="img-container">
+                <img src="all_photos/photo_3.jpg" alt="Photo #3" loading="lazy">
+            </div>
+        </div>
+        <div class="card" id="card-4" onclick="togglePhoto(4)">
+            <div class="badge">
+                <span>PHOTO #4</span>
+                <span class="select-tag" id="tag-4">Select ◯</span>
+            </div>
+            <div class="img-container">
+                <img src="all_photos/photo_4.jpg" alt="Photo #4" loading="lazy">
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Copy Bar -->
+    <div class="floating-bar" id="floating-bar">
+        <div class="bar-info">
+            <span class="bar-count" id="bar-count">0</span>
+            <span>Selected:</span>
+            <span class="bar-list" id="bar-list">none</span>
+        </div>
+        <button class="copy-btn" id="copy-btn" onclick="copySelection()">
+            📋 Copy Selected Numbers
+        </button>
+        <button class="clear-btn" onclick="clearSelection()">Clear</button>
+    </div>
+
+    <script>
+        const selected = new Set();
+
+        function togglePhoto(id) {
+            const card = document.getElementById('card-' + id);
+            const tag = document.getElementById('tag-' + id);
+            if (selected.has(id)) {
+                selected.delete(id);
+                card.classList.remove('selected');
+                tag.textContent = 'Select ◯';
+            } else {
+                selected.add(id);
+                card.classList.add('selected');
+                tag.textContent = '✓ Selected';
+            }
+            updateBar();
+        }
+
+        function updateBar() {
+            const bar = document.getElementById('floating-bar');
+            const countElem = document.getElementById('bar-count');
+            const listElem = document.getElementById('bar-list');
+            const sorted = Array.from(selected).sort((a, b) => a - b);
+
+            if (sorted.length > 0) {
+                bar.style.display = 'flex';
+                countElem.textContent = sorted.length;
+                listElem.textContent = sorted.map(n => '#' + n).join(', ');
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        function copySelection() {
+            const sorted = Array.from(selected).sort((a, b) => a - b);
+            if (sorted.length === 0) return;
+            const text = 'Use photos ' + sorted.join(', ');
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '✓ Copied to Clipboard!';
+                btn.style.background = '#10b981';
+                btn.style.color = '#ffffff';
+                setTimeout(() => {
+                    btn.innerHTML = origHtml;
+                    btn.style.background = '#38bdf8';
+                    btn.style.color = '#0f172a';
+                }, 2000);
+            }).catch(err => {
+                prompt('Copy the photo numbers below:', 'Use photos ' + sorted.join(', '));
+            });
+        }
+
+        function clearSelection() {
+            selected.forEach(id => {
+                const card = document.getElementById('card-' + id);
+                const tag = document.getElementById('tag-' + id);
+                if (card) card.classList.remove('selected');
+                if (tag) tag.textContent = 'Select ◯';
+            });
+            selected.clear();
+            updateBar();
+        }
+    </script>
+</body>
+</html>
